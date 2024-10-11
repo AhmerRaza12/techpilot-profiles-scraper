@@ -98,14 +98,123 @@ def get_profile_links():
     password_input = driver.find_element(By.XPATH, "//input[@id='password']")
     for char in techpilot_username:
         username_input.send_keys(char)
-        time.sleep(0.5)
+        time.sleep(0.25)
     for char in techpilot_password:
         password_input.send_keys(char)
-        time.sleep(0.5)
+        time.sleep(0.25)
     
     login_now_button = driver.find_element(By.XPATH, "//div[@id='login-button']")
     login_now_button.click()
-    time.sleep(5)
+    time.sleep(10)
+    # filter_active= driver.find_element(By.XPATH, "//button[.='Filter aktiviert']")
+    # filter_active.click()
+    advanced_search = driver.find_element(By.XPATH, "//div[@data-tour-step='buyer-supplier-search']")
+    advanced_search.click()
+    # webdriver wait until we find iframe element
+    searching_frame = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//iframe[@id='legacy-iframe']")))
+    driver.switch_to.frame(searching_frame)
+    search_input= driver.find_element(By.XPATH, "//input[@onkeyup='checkEventJSP(this);']")
+    search_keyword="spanabhebende bearbeitung"
+    for key in search_keyword:
+        search_input.send_keys(key)
+        time.sleep(0.1)
+    search_input.send_keys(Keys.ENTER)
+    time.sleep(7)
+    box_results= WebDriverWait(driver,10).until(EC.presence_of_element_located((By.XPATH, "//div[@class='buttonResultTypeRaster']")))
+    box_results.click()
+    time.sleep(4)
+    profiles= driver.find_elements(By.XPATH, "//div[contains(@class,'result_raster_cell')]")
+    profile=profiles[0]
+    profile.click()
+    time.sleep(10)
+    driver.switch_to.window(driver.window_handles[1])
+    show_phone_numbers= driver.find_elements(By.XPATH, "//span[@class='phonePlaceholder']")
+    for show_phone_number in show_phone_numbers:
+        show_phone_number.click()
+        time.sleep(1)
+    try:    
+        company_name=driver.find_element(By.XPATH, "//span[@class='phonePlaceholder']").text
+    except:
+        company_name=""
+    try:
+        company_addr=driver.find_element(By.XPATH, "//div[@id='labelAddress']/ul").text
+    except:
+        company_addr=""
+    try:
+        company_contact=driver.find_element(By.XPATH, "//div[@id='labelAddress']/ul").text
+    except:
+        company_contact=""
+    try:
+        company_data=driver.find_element(By.XPATH, "(//div[@id='labelCompData']/ul)[2]").text
+    except:
+        company_data=""
+    try:
+        company_location=driver.find_element(By.XPATH, "//div[@id='locationMap']/a").get_attribute("href")
+    except:
+        company_location=""
+    try:
+        other_locations=driver.find_element(By.XPATH, "//div[@id='furtherLocations']").text
+    except:
+        other_locations=""
+    file_downloads,technologies=[],[]
+    try:
+        download_files=driver.find_elements(By.XPATH, "//div[@id='documentDownloads']//a")
+        for download_file in download_files:
+            download_file_href=download_file.get_attribute("href")
+            file_downloads.append(download_file_href)
+    except:
+        pass
+    
+    try:
+        company_contact_persons=driver.find_element(By.XPATH, "//div[@id='perfectContactPerson']").text
+    except:
+        company_contact_persons=""
+    try:
+        other_technologies_readmore=driver.find_element(By.XPATH, "//div[@id='perfectTechnology']/div[@class='readMore']")
+        other_technologies_readmore.click()
+        time.sleep(1)
+        other_technologies=driver.find_elements(By.XPATH, "//div[@id='perfectTechnology']//h3")
+        for other_technologie in other_technologies:
+            technologies.append(other_technologie.text)
+    except:
+        pass
+    try:
+        company_materials=driver.find_element(By.XPATH, "//div[@id='perfectMaterials']").text
+    except:
+        company_materials=""
+    try:
+        company_industries=driver.find_element(By.XPATH, "//div[@id='perfectIndustry']").text
+    except:
+        company_industries=""
+    try:
+        company_references=driver.find_element(By.XPATH, "//div[@id='perfectReferences']").text
+    except:
+        company_references=""
+    machines_data=[]
+    try:
+        machines_data_elements=driver.find_elements(By.XPATH, "//div[@class='rssTpSliderBox']")
+        for machine_data_element in machines_data_elements:
+            company_machine=machine_data_element.text
+            machines_data.append(company_machine)
+    except:
+        pass
+    data={
+        "company_name":company_name,
+        "company_addr":company_addr,
+        "company_contact":company_contact,
+        "company_data":company_data,
+        "company_location":company_location,
+        "other_locations":other_locations,
+        "file_downloads":[file for file in file_downloads],
+        "company_contact_persons":company_contact_persons,
+        "technologies":technologies,
+        "company_materials":company_materials,
+        "company_industries":company_industries,
+        "company_references":company_references,
+        "machines_data":machines_data
+    }
+    print(data)
     driver.quit()
+
 
 get_profile_links()
