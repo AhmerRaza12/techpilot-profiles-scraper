@@ -1,3 +1,4 @@
 *.crt
 *.txt
 .env
+test.py
