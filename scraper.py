@@ -179,13 +179,48 @@ def get_profile_links():
     print(f"Extracted {len(profile_links)} profile links.")
     driver.quit()
 
+# read links from profile_links.txt each line is a link
+profile_links = open("profile_links.txt", "r").read().split("\n")
 
-get_profile_links()
-def get_data(profiles):
-        for profile in profiles[:5]:
-            profile.click()
-            time.sleep(10)
-            driver.switch_to.window(driver.window_handles[1])
+def get_data(profiles_links):
+        for profile in profiles_links[:5]:
+            driver.get(profile)
+            # for first link we need to login
+            if profile == profiles_links[0]:
+                try:
+                    chatbox_thread = threading.Thread(target=close_chatbox, daemon=True)
+                    chatbox_thread.start()
+                    try:
+                        cookie_button = driver.find_element(By.XPATH, "//button[@id='CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll']")
+                        cookie_button.click()
+                        time.sleep(1)
+                    except:
+                        pass
+                    menu=driver.find_element(By.XPATH, "//div[@id='menueNavBtn']")
+                    menu.click()
+                    time.sleep(1)
+                    login_button=driver.find_element(By.XPATH, "(//div[@data-refid='loginButton'])[2]")
+                    login_button.click()
+                    time.sleep(5)
+                    username_input=driver.find_element(By.XPATH, "//input[@id='logname']")
+                    password_input=driver.find_element(By.XPATH, "//input[@id='password']")
+                    for char in techpilot_username:
+                        username_input.send_keys(char)
+                        time.sleep(0.1)
+                    for char in techpilot_password:
+                        password_input.send_keys(char)
+                        time.sleep(0.1)
+                    login_now_button=driver.find_element(By.XPATH, "//div[@id='login-button']")
+                    login_now_button.click()
+                    time.sleep(8)
+                    # now we need to go to the profile link
+                    driver.get(profile)
+                    time.sleep(3)
+                except Exception as e:
+                    print("Error while login")
+                    print(e)
+            time.sleep(3)
+            # driver.switch_to.window(driver.window_handles[1])
             show_phone_numbers= driver.find_elements(By.XPATH, "//span[@class='phonePlaceholder']")
             for show_phone_number in show_phone_numbers:
                 show_phone_number.click()
@@ -275,10 +310,13 @@ def get_data(profiles):
             }
             print(data)
             appendProduct("techpilot_data.csv",data)
-            driver.close()
-            driver.switch_to.window(driver.window_handles[0])
-            time.sleep(1)
-            searching_frame = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//iframe[@id='legacy-iframe']")))
-            driver.switch_to.frame(searching_frame)
+            
+            # driver.switch_to.window(driver.window_handles[0])
+            # time.sleep(1)
+            # searching_frame = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//iframe[@id='legacy-iframe']")))
+            # driver.switch_to.frame(searching_frame)
+        driver.quit()
 
-driver.quit()
+
+        
+get_data(profile_links)
