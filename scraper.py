@@ -182,10 +182,10 @@ def get_profile_links():
 # read links from profile_links.txt each line is a link
 profile_links = open("profile_links.txt", "r").read().split("\n")
 
+all_data = []
 def get_data(profiles_links):
         for profile in profiles_links[:5]:
             driver.get(profile)
-            # for first link we need to login
             if profile == profiles_links[0]:
                 try:
                     chatbox_thread = threading.Thread(target=close_chatbox, daemon=True)
@@ -220,7 +220,6 @@ def get_data(profiles_links):
                     print("Error while login")
                     print(e)
             time.sleep(3)
-            # driver.switch_to.window(driver.window_handles[1])
             show_phone_numbers= driver.find_elements(By.XPATH, "//span[@class='phonePlaceholder']")
             for show_phone_number in show_phone_numbers:
                 show_phone_number.click()
@@ -238,7 +237,7 @@ def get_data(profiles_links):
             except:
                 company_contact=""
             try:
-                company_data=driver.find_element(By.XPATH, "(//div[@id='labelCompData']/ul)[2]").text
+                                company_data=driver.find_element(By.XPATH, "(//div[@id='labelCompData']/ul)[2]").text
             except:
                 company_data=""
             try:
@@ -309,14 +308,11 @@ def get_data(profiles_links):
                 "Machines":"\n".join(machines_data)
             }
             print(data)
+            all_data.append(data)
             appendProduct("techpilot_data.csv",data)
             
-            # driver.switch_to.window(driver.window_handles[0])
-            # time.sleep(1)
-            # searching_frame = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//iframe[@id='legacy-iframe']")))
-            # driver.switch_to.frame(searching_frame)
         driver.quit()
+        return all_data
 
-
-        
-get_data(profile_links)
+profiles_scraped = get_data(profile_links)
+print(f"Scraped {len(profiles_scraped)} profiles.")
