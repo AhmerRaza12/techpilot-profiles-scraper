@@ -50,8 +50,9 @@ chrome_options.add_argument('--disable-dev-shm-usage')
 chrome_options.add_argument('--start-maximized')
 chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36')
 chrome_options.add_argument('--ignore-certificate-errors')
-chrome_options.add_argument(f'--proxy-server={proxy_ip}')
+# chrome_options.add_argument(f'--proxy-server={proxy_ip}')
 # chrome_options.add_argument('--window-size=1920,1080')
+# chrome_options.add_argument("--headless=new")
 chrome_install = ChromeDriverManager().install()
 folder = os.path.dirname(chrome_install)
 chromedriver_path = os.path.join(folder, "chromedriver.exe")
@@ -138,7 +139,7 @@ def get_profile_links():
     driver.switch_to.frame(searching_frame)
     
     search_input = driver.find_element(By.XPATH, "//input[@onkeyup='checkEventJSP(this);']")
-    search_keyword = "spanabhebende bearbeitung"
+    search_keyword = "werkzeug- und Formenbau"
     for key in search_keyword:
         search_input.send_keys(key)
         time.sleep(0.1)
@@ -155,7 +156,7 @@ def get_profile_links():
             next_button = driver.find_element(By.XPATH, "//div[@class='loadNextBtn']/span")
             driver.execute_script("arguments[0].scrollIntoView();", next_button)
             next_button.click()
-            time.sleep(7)
+            time.sleep(8)
         except:
             break  
     
@@ -172,7 +173,7 @@ def get_profile_links():
         except:
             continue
     
-    with open("profile_links.txt", "w") as f:
+    with open("werkzeug_profile_links.txt", "w") as f:
         for link in profile_links:
             f.write(link + "\n")
     
@@ -193,7 +194,7 @@ def update_scraped_count(current_count):
     with open(count_file_path, "w") as f:
         f.write(str(current_count))
 
-profile_links = open("remaining_links.txt", "r").read().split("\n")
+
 
 all_data = []
 def get_data(profiles_links):
@@ -350,11 +351,14 @@ def get_data(profiles_links):
         }
         print(data)
         all_data.append(data)
-        appendProduct("techpilot_data_rem.csv", data)
+        appendProduct("werkzeug_techpilot_data.csv", data)
         update_scraped_count(index)
         
     driver.quit()
     return all_data
 
+profile_links = open("werkzeug_profile_links.txt", "r").read().split("\n")
 profiles_scraped = get_data(profile_links)
 print(f"Scraped {len(profiles_scraped)} profiles.")
+
+# get_profile_links()
